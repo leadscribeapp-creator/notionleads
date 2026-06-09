@@ -1,4 +1,4 @@
-// NotionLeads MVP - Core Engine
+// NotionLeads MVP - Render Compatible
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -59,18 +59,18 @@ async function updateLead(pageId, status) {
         }
       }
     });
-    console.log(`Updated lead to: ${status}`);
+    console.log(`✅ Updated lead to: ${status}`);
   } catch (error) {
-    console.error(`Error updating lead:`, error.message);
+    console.error(`❌ Error updating lead:`, error.message);
   }
 }
 
 // ─── الوظيفة الرئيسية: المسح اليومي ───
 async function dailyScan() {
-  console.log('Starting daily scan...', new Date().toLocaleString());
+  console.log('🔍 Starting daily scan...', new Date().toLocaleString());
   
   const leads = await getLeads();
-  console.log(`Found ${leads.length} active leads`);
+  console.log(`📊 Found ${leads.length} active leads`);
   
   for (const lead of leads) {
     const props = lead.properties;
@@ -81,21 +81,21 @@ async function dailyScan() {
     const days = daysSinceContact(lastContacted);
     const newStatus = autoStatus(days, status);
     
-    console.log(`${name}: ${days} days since contact -> ${newStatus}`);
+    console.log(`⏱️ ${name}: ${days} days since contact → ${newStatus}`);
     
     if (newStatus !== status) {
       await updateLead(lead.id, newStatus);
     }
   }
   
-  console.log('Daily scan complete');
+  console.log('✅ Daily scan complete\n');
 }
 
 // ─── API Endpoints ───
 
 app.get('/', (req, res) => {
   res.json({ 
-    message: 'NotionLeads API is running',
+    message: 'NotionLeads API is running 🚀',
     version: '1.0.0',
     endpoints: ['/health', '/scan', '/leads'],
     timestamp: new Date()
@@ -114,7 +114,7 @@ app.post('/scan', async (req, res) => {
   
   try {
     await dailyScan();
-    res.json({ success: true, message: 'Scan completed' });
+    res.json({ success: true, message: 'Scan completed', timestamp: new Date() });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -141,8 +141,9 @@ app.get('/leads', async (req, res) => {
 // ─── تشغيل السيرفر ───
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`NotionLeads running on http://localhost:${PORT}`);
-  console.log(`Ready for daily scans`);
+  console.log(`🚀 NotionLeads running on port ${PORT}`);
+  console.log(`📅 Ready for daily scans`);
 });
 
+// ─── تصدير للـ Render/Vercel ───
 module.exports = app;
